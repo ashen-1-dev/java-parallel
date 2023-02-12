@@ -14,13 +14,13 @@ public class ImageToPixels {
             long start = System.nanoTime();
             //Modify pixel here
             int[][] monochromeArray = convertToMonochrome(image, threshold);
-            int[][] erodedArray = erode(monochromeArray, 3);
+            int[][] erodedArray = erode(monochromeArray, 1);
             BufferedImage modifiedImage = convert(image, erodedArray);
             long end = System.nanoTime();
-
+            image = image.getSubimage(0, 0, image.getWidth(), image.getHeight() / 2);
 
             File file = new File("G:\\parallel\\1\\pr_1\\src\\test.jpg");
-            ImageIO.write(modifiedImage, "jpg", file);
+            ImageIO.write(image, "jpg", file);
 
             System.out.println("Затраченное время: " + (end - start)/Math.pow(10, 9) + " секунды");
 
@@ -28,6 +28,19 @@ public class ImageToPixels {
             System.out.println("Interrupted: " + exc.getMessage());
         }
     }
+
+
+//    public static int[][] convertToMonochromeAsync(BufferedImage image, int threshold, int threadsCount) throws InterruptedException {
+//        var threads = new Thread[threadsCount];
+//
+//        for (int i = 0; i < threadsCount; i++) {
+//            threads[i] = new Thread(() -> convertToMonochrome(image, threshold));
+//            threads[i].start();
+//            threads[i].join();
+//        }
+//
+//        return
+//    }
 
     public static int[][] convertToMonochrome(BufferedImage image, int threshold) {
         int width = image.getWidth();
@@ -122,4 +135,26 @@ public class ImageToPixels {
         return result;
     }
 
+}
+
+class ImageCutter {
+
+    public static BufferedImage[] cutImages(BufferedImage image, int parts) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        BufferedImage[] images = new BufferedImage[parts];
+
+        for (int i = 0; i < parts; i++) {
+            int x_start = 0;
+            int x_end = width;
+            int y_start = i *  (int) Math.ceil((float) height / parts);
+            int y_end = (i + 1) *  (int) Math.ceil((float) height / parts);
+            if (i == parts - 1) {
+                y_end = height;
+            }
+                BufferedImage cuttedImage = image.getSubimage(x_start, y_start, width, y_end - y_start);
+            images[i] = cuttedImage;
+        }
+        return images;
+    }
 }
